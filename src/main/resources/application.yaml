@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: algebraic.equation
+server:
+  servlet:
+    context-path: /api
