@@ -1,11 +1,17 @@
 package com.sreeram.algebraic.equation.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import java.util.Objects;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class EquationResponse {
 
     private Long equationId;
     private String message;
+    private String equation;
 
     public EquationResponse() {
     }
@@ -55,6 +61,14 @@ public class EquationResponse {
                 "id=" + equationId +
                 ", expression='" + message + '\'' +
                 '}';
+    }
+
+    public String getEquation() {
+        return equation;
+    }
+
+    public void setEquation(String equation) {
+        this.equation = equation;
     }
 }
 
