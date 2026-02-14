@@ -15,6 +15,7 @@ public class EquationsController {
     public EquationResponse storeEquation(
             @RequestBody EquationRequest request
     ) {
+
         return new EquationResponse();
     }
 
