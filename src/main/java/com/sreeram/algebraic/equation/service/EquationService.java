@@ -11,6 +11,6 @@ import java.util.List;
 public interface EquationService {
     EquationResponse storeEquation(String equation);
     List<EquationResponse> getAllEquations();
-    EvaluationResponse evaluateEquation(EvaluationRequest request);
+    EvaluationResponse evaluateEquation(Long equationId, EvaluationRequest request);
 }
 

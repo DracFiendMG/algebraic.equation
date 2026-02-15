@@ -191,7 +191,7 @@ class EquationResponseServiceImplTest {
         variables.put("z", 4.0);
         EvaluationRequest request = new EvaluationRequest(variables);
 
-        EvaluationResponse result = equationService.evaluateEquation(request);
+        EvaluationResponse result = equationService.evaluateEquation(1L, request);
 
         assertNotNull(result);
         assertEquals(stored.getEquationId(), result.getEquationId());
@@ -214,7 +214,7 @@ class EquationResponseServiceImplTest {
         variables.put("z", 3.0);
         EvaluationRequest request = new EvaluationRequest(variables);
 
-        EvaluationResponse result = equationService.evaluateEquation(request);
+        EvaluationResponse result = equationService.evaluateEquation(1L, request);
 
         assertNotNull(result);
         assertEquals(6.0, result.getResult());
@@ -231,7 +231,7 @@ class EquationResponseServiceImplTest {
         variables.put("z", 2.0);
         EvaluationRequest request = new EvaluationRequest(variables);
 
-        EvaluationResponse result = equationService.evaluateEquation(request);
+        EvaluationResponse result = equationService.evaluateEquation(1L, request);
 
         assertNotNull(result);
         assertEquals(5.0, result.getResult());
@@ -248,7 +248,7 @@ class EquationResponseServiceImplTest {
         variables.put("z", 4.0);
         EvaluationRequest request = new EvaluationRequest(variables);
 
-        EvaluationResponse result = equationService.evaluateEquation(request);
+        EvaluationResponse result = equationService.evaluateEquation(1L, request);
 
         assertNotNull(result);
         assertEquals(24.0, result.getResult());
@@ -265,7 +265,7 @@ class EquationResponseServiceImplTest {
         variables.put("z", 0.0);
         EvaluationRequest request = new EvaluationRequest(variables);
 
-        EvaluationResponse result = equationService.evaluateEquation(request);
+        EvaluationResponse result = equationService.evaluateEquation(1L, request);
 
         assertNotNull(result);
         assertEquals(5.0, result.getResult());
@@ -282,7 +282,7 @@ class EquationResponseServiceImplTest {
         variables.put("z", 4.0);
         EvaluationRequest request = new EvaluationRequest(variables);
 
-        EvaluationResponse result = equationService.evaluateEquation(request);
+        EvaluationResponse result = equationService.evaluateEquation(1L, request);
 
         assertNotNull(result);
         assertEquals(20.0, result.getResult());
@@ -299,7 +299,7 @@ class EquationResponseServiceImplTest {
         variables.put("z", 0.0);
         EvaluationRequest request = new EvaluationRequest(variables);
 
-        EvaluationResponse result = equationService.evaluateEquation(request);
+        EvaluationResponse result = equationService.evaluateEquation(1L, request);
 
         assertNotNull(result);
         assertEquals(0.0, result.getResult());
@@ -316,7 +316,7 @@ class EquationResponseServiceImplTest {
         variables.put("z", -3.0);
         EvaluationRequest request = new EvaluationRequest(variables);
 
-        EvaluationResponse result = equationService.evaluateEquation(request);
+        EvaluationResponse result = equationService.evaluateEquation(1L, request);
 
         assertNotNull(result);
         assertEquals(-6.0, result.getResult());
@@ -333,7 +333,7 @@ class EquationResponseServiceImplTest {
         variables.put("z", 3.5);
         EvaluationRequest request = new EvaluationRequest(variables);
 
-        EvaluationResponse result = equationService.evaluateEquation(request);
+        EvaluationResponse result = equationService.evaluateEquation(1L, request);
 
         assertNotNull(result);
         assertEquals(7.5, result.getResult());
@@ -348,7 +348,7 @@ class EquationResponseServiceImplTest {
         EvaluationRequest request = new EvaluationRequest(variables);
 
         assertThrows(IllegalArgumentException.class, () -> {
-            equationService.evaluateEquation(request);
+            equationService.evaluateEquation(1L, request);
         });
     }
 
@@ -361,7 +361,7 @@ class EquationResponseServiceImplTest {
         EvaluationRequest request = new EvaluationRequest(variables);
 
         assertThrows(IllegalArgumentException.class, () -> {
-            equationService.evaluateEquation(request);
+            equationService.evaluateEquation(1L, request);
         });
     }
 
@@ -376,7 +376,7 @@ class EquationResponseServiceImplTest {
         EvaluationRequest request = new EvaluationRequest(variables);
 
         assertThrows(IllegalArgumentException.class, () -> {
-            equationService.evaluateEquation(request);
+            equationService.evaluateEquation(1L, request);
         });
     }
 
@@ -392,7 +392,7 @@ class EquationResponseServiceImplTest {
         EvaluationRequest request = new EvaluationRequest(variables);
 
         assertThrows(ArithmeticException.class, () -> {
-            equationService.evaluateEquation(request);
+            equationService.evaluateEquation(1L, request);
         });
     }
 
@@ -407,7 +407,7 @@ class EquationResponseServiceImplTest {
         variables.put("z", 3000000.0);
         EvaluationRequest request = new EvaluationRequest(variables);
 
-        EvaluationResponse result = equationService.evaluateEquation(request);
+        EvaluationResponse result = equationService.evaluateEquation(1L, request);
 
         assertNotNull(result);
         assertEquals(6000000.0, result.getResult());
@@ -424,7 +424,7 @@ class EquationResponseServiceImplTest {
         variables.put("z", 3.0);
         EvaluationRequest request = new EvaluationRequest(variables);
 
-        EvaluationResponse result = equationService.evaluateEquation(request);
+        EvaluationResponse result = equationService.evaluateEquation(1L, request);
 
         assertNotNull(result.getEquationId());
         assertNotNull(result.getEquation());
