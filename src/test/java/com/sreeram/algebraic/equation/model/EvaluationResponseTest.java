@@ -18,20 +18,18 @@ class EvaluationResponseTest {
 
         EvaluationResponse response = new EvaluationResponse();
         response.setEquationId(1L);
-        response.setEquation("2*x + 3*y + z");
+        response.setEquation("2x+3y+z");
         response.setVariable(variables);
         response.setResult(17.0);
-        response.setMessage("Evaluation successful");
 
         assertEquals(1L, response.getEquationId());
-        assertEquals("2*x + 3*y + z", response.getEquation());
+        assertEquals("2x+3y+z", response.getEquation());
         assertNotNull(response.getVariable());
         assertEquals(3, response.getVariable().size());
         assertEquals(2.0, response.getVariable().get("x"));
         assertEquals(3.0, response.getVariable().get("y"));
         assertEquals(4.0, response.getVariable().get("z"));
         assertEquals(17.0, response.getResult());
-        assertEquals("Evaluation successful", response.getMessage());
     }
 
     @Test
@@ -43,16 +41,14 @@ class EvaluationResponseTest {
         variables.put("z", 15.0);
 
         response.setEquationId(2L);
-        response.setEquation("x + y + z");
+        response.setEquation("x+y+z");
         response.setVariable(variables);
         response.setResult(30.0);
-        response.setMessage("Addition complete");
 
         assertEquals(2L, response.getEquationId());
-        assertEquals("x + y + z", response.getEquation());
+        assertEquals("x+y+z", response.getEquation());
         assertEquals(variables, response.getVariable());
         assertEquals(30.0, response.getResult());
-        assertEquals("Addition complete", response.getMessage());
     }
 
     @Test
@@ -64,34 +60,20 @@ class EvaluationResponseTest {
         variables.put("z", 3.0);
 
         response.setEquationId(3L);
-        response.setEquation("x * y * z");
+        response.setEquation("xyz");
         response.setVariable(variables);
         response.setResult(6.0);
-        response.setMessage("Multiplication done");
 
         assertNotNull(response.getEquationId());
         assertNotNull(response.getEquation());
         assertNotNull(response.getVariable());
         assertNotNull(response.getResult());
-        assertNotNull(response.getMessage());
-    }
-
-    @Test
-    void testEvaluationResponse_WithMessageConstructor() {
-        EvaluationResponse response = new EvaluationResponse("Error occurred");
-
-        assertEquals("Error occurred", response.getMessage());
-        assertNull(response.getEquationId());
-        assertNull(response.getEquation());
-        assertNull(response.getVariable());
-        assertNull(response.getResult());
     }
 
     @Test
     void testEvaluationResponse_DefaultConstructor() {
         EvaluationResponse response = new EvaluationResponse();
 
-        assertNull(response.getMessage());
         assertNull(response.getEquationId());
         assertNull(response.getEquation());
         assertNull(response.getVariable());
@@ -107,16 +89,14 @@ class EvaluationResponseTest {
 
         EvaluationResponse response = new EvaluationResponse();
         response.setEquationId(4L);
-        response.setEquation("x + y + z");
+        response.setEquation("x+y+z");
         response.setVariable(variables);
         response.setResult(0.0);
-        response.setMessage("Zero result");
 
         assertEquals(0.0, response.getResult());
         assertEquals(0.0, response.getVariable().get("x"));
         assertEquals(0.0, response.getVariable().get("y"));
         assertEquals(0.0, response.getVariable().get("z"));
-        assertEquals("Zero result", response.getMessage());
     }
 
     @Test
@@ -128,16 +108,14 @@ class EvaluationResponseTest {
 
         EvaluationResponse response = new EvaluationResponse();
         response.setEquationId(5L);
-        response.setEquation("x + y + z");
+        response.setEquation("x+y+z");
         response.setVariable(variables);
         response.setResult(-6.0);
-        response.setMessage("Negative result");
 
         assertEquals(-6.0, response.getResult());
         assertEquals(-1.0, response.getVariable().get("x"));
         assertEquals(-2.0, response.getVariable().get("y"));
         assertEquals(-3.0, response.getVariable().get("z"));
-        assertEquals("Negative result", response.getMessage());
     }
 
     @Test
@@ -149,14 +127,12 @@ class EvaluationResponseTest {
 
         EvaluationResponse response = new EvaluationResponse();
         response.setEquationId(6L);
-        response.setEquation("x + y + z");
+        response.setEquation("x+y+z");
         response.setVariable(variables);
         response.setResult(7.5);
-        response.setMessage("Decimal calculation");
 
         assertEquals(7.5, response.getResult());
         assertEquals(1.5, response.getVariable().get("x"));
-        assertEquals("Decimal calculation", response.getMessage());
     }
 
     @Test
@@ -165,11 +141,9 @@ class EvaluationResponseTest {
         Map<String, Double> variables = new HashMap<>();
 
         response.setVariable(variables);
-        response.setMessage("Empty variables");
 
         assertNotNull(response.getVariable());
         assertTrue(response.getVariable().isEmpty());
-        assertEquals("Empty variables", response.getMessage());
     }
 
     @Test
@@ -181,14 +155,12 @@ class EvaluationResponseTest {
 
         EvaluationResponse response = new EvaluationResponse();
         response.setEquationId(7L);
-        response.setEquation("(x + y) * z");
+        response.setEquation("(x+y)z");
         response.setVariable(variables);
         response.setResult(20.0);
-        response.setMessage("Complex expression evaluated");
 
-        assertEquals("(x + y) * z", response.getEquation());
+        assertEquals("(x+y)z", response.getEquation());
         assertEquals(20.0, response.getResult());
-        assertEquals("Complex expression evaluated", response.getMessage());
     }
 
     @Test
@@ -196,10 +168,8 @@ class EvaluationResponseTest {
         EvaluationResponse response = new EvaluationResponse();
 
         response.setEquationId(999999L);
-        response.setMessage("Large ID test");
 
         assertEquals(999999L, response.getEquationId());
-        assertEquals("Large ID test", response.getMessage());
     }
 
     @Test
@@ -211,13 +181,11 @@ class EvaluationResponseTest {
 
         EvaluationResponse response = new EvaluationResponse();
         response.setVariable(variables);
-        response.setMessage("All variables set");
 
         assertTrue(response.getVariable().containsKey("x"));
         assertTrue(response.getVariable().containsKey("y"));
         assertTrue(response.getVariable().containsKey("z"));
         assertEquals(3, response.getVariable().size());
-        assertEquals("All variables set", response.getMessage());
     }
 }
 

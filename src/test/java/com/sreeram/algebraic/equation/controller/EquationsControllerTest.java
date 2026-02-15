@@ -44,8 +44,7 @@ class EquationsControllerTest {
 
         equationResponse = new EquationResponse();
         equationResponse.setEquationId(1L);
-        equationResponse.setEquation("x + y * 2");
-        equationResponse.setMessage("Equation stored successfully!");
+        equationResponse.setEquation("x+2y");
 
         Map<String, Double> variables = new HashMap<>();
         variables.put("x", 10.0);
@@ -56,7 +55,6 @@ class EquationsControllerTest {
 
         evaluationResponse = new EvaluationResponse();
         evaluationResponse.setResult(20.0);
-        evaluationResponse.setMessage("Equation evaluated successfully!");
     }
 
     @Test
@@ -69,32 +67,16 @@ class EquationsControllerTest {
         assertEquals(200, response.getStatusCode().value());
         assertNotNull(response.getBody());
         assertEquals(1L, response.getBody().getEquationId());
-        assertEquals("x + y * 2", response.getBody().getEquation());
-        assertEquals("Equation stored successfully!", response.getBody().getMessage());
-    }
-
-    @Test
-    void testStoreEquation_NullRequest() {
-        EquationRequest nullRequest = new EquationRequest();
-        nullRequest.setEquation(null);
-
-        EquationResponse errorResponse = new EquationResponse("Invalid equation");
-        when(equationService.storeEquation(null)).thenReturn(errorResponse);
-
-        ResponseEntity<EquationResponse> response = equationsController.storeEquation(nullRequest);
-
-        assertNotNull(response);
-        assertEquals(200, response.getStatusCode().value());
-        assertEquals("Invalid equation", response.getBody().getMessage());
+        assertEquals("x+2y", response.getBody().getEquation());
     }
 
     @Test
     void testGetAllEquations_Success() {
-        EquationResponse equation1 = new EquationResponse(1L, "First equation");
-        equation1.setEquation("x + y");
+        EquationResponse equation1 = new EquationResponse(1L);
+        equation1.setEquation("x+y");
 
-        EquationResponse equation2 = new EquationResponse(2L, "Second equation");
-        equation2.setEquation("x * y");
+        EquationResponse equation2 = new EquationResponse(2L);
+        equation2.setEquation("xy");
 
         List<EquationResponse> equations = Arrays.asList(equation1, equation2);
         when(equationService.getAllEquations()).thenReturn(equations);
@@ -105,8 +87,8 @@ class EquationsControllerTest {
         assertEquals(200, response.getStatusCode().value());
         assertNotNull(response.getBody());
         assertEquals(2, response.getBody().size());
-        assertEquals("x + y", response.getBody().get(0).getEquation());
-        assertEquals("x * y", response.getBody().get(1).getEquation());
+        assertEquals("x+y", response.getBody().get(0).getEquation());
+        assertEquals("xy", response.getBody().get(1).getEquation());
     }
 
     @Test
@@ -131,19 +113,6 @@ class EquationsControllerTest {
         assertEquals(200, response.getStatusCode().value());
         assertNotNull(response.getBody());
         assertEquals(20.0, response.getBody().getResult());
-        assertEquals("Equation evaluated successfully!", response.getBody().getMessage());
-    }
-
-    @Test
-    void testEvaluateEquation_EquationNotFound() {
-        EvaluationResponse errorResponse = new EvaluationResponse("Equation not found");
-        when(equationService.evaluateEquation(eq(999L), any(EvaluationRequest.class))).thenReturn(errorResponse);
-
-        ResponseEntity<EvaluationResponse> response = equationsController.evaluateEquation(999L, evaluationRequest);
-
-        assertNotNull(response);
-        assertEquals(200, response.getStatusCode().value());
-        assertEquals("Equation not found", response.getBody().getMessage());
     }
 
     @Test
@@ -153,7 +122,6 @@ class EquationsControllerTest {
 
         EvaluationResponse emptyResponse = new EvaluationResponse();
         emptyResponse.setResult(0.0);
-        emptyResponse.setMessage("Evaluated with empty variables");
 
         when(equationService.evaluateEquation(eq(1L), any(EvaluationRequest.class))).thenReturn(emptyResponse);
 
@@ -177,7 +145,6 @@ class EquationsControllerTest {
 
         EvaluationResponse complexResponse = new EvaluationResponse();
         complexResponse.setResult(14.0);
-        complexResponse.setMessage("Complex expression evaluated");
 
         when(equationService.evaluateEquation(eq(1L), any(EvaluationRequest.class))).thenReturn(complexResponse);
 
@@ -186,7 +153,6 @@ class EquationsControllerTest {
         assertNotNull(response);
         assertEquals(200, response.getStatusCode().value());
         assertEquals(14.0, response.getBody().getResult());
-        assertEquals("Complex expression evaluated", response.getBody().getMessage());
     }
 }
 

@@ -1,5 +1,9 @@
 package com.sreeram.algebraic.equation.service.impl;
 
+import com.sreeram.algebraic.equation.exception.DivisionByZeroException;
+import com.sreeram.algebraic.equation.exception.EquationNotFoundException;
+import com.sreeram.algebraic.equation.exception.InvalidEquationException;
+import com.sreeram.algebraic.equation.exception.VariableNotFoundException;
 import com.sreeram.algebraic.equation.model.EquationResponse;
 import com.sreeram.algebraic.equation.model.EvaluationRequest;
 import com.sreeram.algebraic.equation.model.EvaluationResponse;
@@ -19,6 +23,7 @@ class EquationResponseServiceImplTest {
     @BeforeEach
     void setUp() {
         equationService = new EquationServiceImpl();
+        equationService.clearAll();
     }
 
     @Test
@@ -28,10 +33,9 @@ class EquationResponseServiceImplTest {
         EquationResponse result = equationService.storeEquation(equation);
 
         assertNotNull(result);
-        assertEquals("Equation stored successfully!", result.getMessage());
         assertNotNull(result.getEquationId());
-        assertEquals(0L, result.getEquationId());
-        assertEquals(equation, result.getEquation());
+        assertTrue(result.getEquationId() >= 1L);
+        assertEquals("2x+3y+z", result.getEquation());
         assertNotNull(result.getExpressionTree());
     }
 
@@ -42,9 +46,8 @@ class EquationResponseServiceImplTest {
         EquationResponse result = equationService.storeEquation(equation);
 
         assertNotNull(result);
-        assertEquals("Equation stored successfully!", result.getMessage());
         assertNotNull(result.getEquationId());
-        assertEquals(equation, result.getEquation());
+        assertEquals("(2x+3)(y-z)", result.getEquation());
         assertNotNull(result.getExpressionTree());
     }
 
@@ -55,8 +58,7 @@ class EquationResponseServiceImplTest {
         EquationResponse result = equationService.storeEquation(equation);
 
         assertNotNull(result);
-        assertEquals("Equation stored successfully!", result.getMessage());
-        assertEquals(equation, result.getEquation());
+        assertEquals("x+y", result.getEquation());
         assertNotNull(result.getExpressionTree());
     }
 
@@ -67,8 +69,7 @@ class EquationResponseServiceImplTest {
         EquationResponse result = equationService.storeEquation(equation);
 
         assertNotNull(result);
-        assertEquals("Equation stored successfully!", result.getMessage());
-        assertEquals(equation, result.getEquation());
+        assertEquals("x^2+y", result.getEquation());
         assertNotNull(result.getExpressionTree());
     }
 
@@ -80,8 +81,9 @@ class EquationResponseServiceImplTest {
         EquationResponse result1 = equationService.storeEquation(equation1);
         EquationResponse result2 = equationService.storeEquation(equation2);
 
-        assertEquals(0L, result1.getEquationId());
-        assertEquals(1L, result2.getEquationId());
+        assertNotNull(result1.getEquationId());
+        assertNotNull(result2.getEquationId());
+        assertEquals(result1.getEquationId() + 1, result2.getEquationId());
         assertNotEquals(result1.getEquationId(), result2.getEquationId());
     }
 
@@ -103,7 +105,7 @@ class EquationResponseServiceImplTest {
         assertNotNull(result);
         assertEquals(1, result.size());
         assertEquals(stored.getEquationId(), result.get(0).getEquationId());
-        assertEquals(equation, result.get(0).getEquation());
+        assertEquals("2x+3y+z", result.get(0).getEquation());
     }
 
     @Test
@@ -141,7 +143,6 @@ class EquationResponseServiceImplTest {
 
         assertNotNull(result);
         assertEquals(17.0, result.getResult());
-        assertEquals("Equation evaluated successfully!", result.getMessage());
     }
 
     @Test
@@ -159,7 +160,6 @@ class EquationResponseServiceImplTest {
 
         assertNotNull(result);
         assertEquals(6.0, result.getResult());
-        assertEquals("Equation evaluated successfully!", result.getMessage());
     }
 
     @Test
@@ -304,11 +304,11 @@ class EquationResponseServiceImplTest {
         variables.put("z", 3.0);
         EvaluationRequest request = new EvaluationRequest(variables);
 
-        EvaluationResponse result = equationService.evaluateEquation(999L, request);
+        EquationNotFoundException exception = assertThrows(EquationNotFoundException.class, () -> {
+            equationService.evaluateEquation(999L, request);
+        });
 
-        assertNotNull(result);
-        assertEquals("Equation not found", result.getMessage());
-        assertNull(result.getResult());
+        assertTrue(exception.getMessage().contains("999"));
     }
 
     @Test
@@ -321,9 +321,11 @@ class EquationResponseServiceImplTest {
         variables.put("y", 0.0);
         EvaluationRequest request = new EvaluationRequest(variables);
 
-        assertThrows(ArithmeticException.class, () -> {
+        DivisionByZeroException exception = assertThrows(DivisionByZeroException.class, () -> {
             equationService.evaluateEquation(stored.getEquationId(), request);
         });
+
+        assertNotNull(exception.getMessage());
     }
 
     @Test
@@ -379,7 +381,6 @@ class EquationResponseServiceImplTest {
 
         assertNotNull(result);
         assertEquals(22.0, result.getResult());
-        assertEquals("Equation evaluated successfully!", result.getMessage());
     }
 
     @Test
@@ -505,6 +506,63 @@ class EquationResponseServiceImplTest {
         EvaluationResponse result = equationService.evaluateEquation(stored.getEquationId(), request);
 
         assertEquals(13.0, result.getResult());
+    }
+
+    @Test
+    void testStoreEquation_NullEquation() {
+        InvalidEquationException exception = assertThrows(InvalidEquationException.class, () -> {
+            equationService.storeEquation(null);
+        });
+
+        assertTrue(exception.getMessage().contains("null or empty"));
+    }
+
+    @Test
+    void testStoreEquation_EmptyEquation() {
+        InvalidEquationException exception = assertThrows(InvalidEquationException.class, () -> {
+            equationService.storeEquation("");
+        });
+
+        assertTrue(exception.getMessage().contains("null or empty"));
+    }
+
+    @Test
+    void testStoreEquation_WhitespaceOnlyEquation() {
+        InvalidEquationException exception = assertThrows(InvalidEquationException.class, () -> {
+            equationService.storeEquation("   ");
+        });
+
+        assertTrue(exception.getMessage().contains("null or empty"));
+    }
+
+    @Test
+    void testEvaluateEquation_MissingVariable() {
+        String equation = "x + y + z";
+        EquationResponse stored = equationService.storeEquation(equation);
+
+        Map<String, Double> variables = new HashMap<>();
+        variables.put("x", 1.0);
+        variables.put("y", 2.0);
+        EvaluationRequest request = new EvaluationRequest(variables);
+
+        VariableNotFoundException exception = assertThrows(VariableNotFoundException.class, () -> {
+            equationService.evaluateEquation(stored.getEquationId(), request);
+        });
+
+        assertTrue(exception.getMessage().contains("z"));
+    }
+
+    @Test
+    void testEvaluateEquation_AllVariablesMissing() {
+        String equation = "x + y";
+        EquationResponse stored = equationService.storeEquation(equation);
+
+        Map<String, Double> variables = new HashMap<>();
+        EvaluationRequest request = new EvaluationRequest(variables);
+
+        assertThrows(VariableNotFoundException.class, () -> {
+            equationService.evaluateEquation(stored.getEquationId(), request);
+        });
     }
 }
 

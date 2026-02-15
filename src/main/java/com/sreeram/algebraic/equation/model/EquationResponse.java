@@ -9,21 +9,16 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 public class EquationResponse {
 
     private Long equationId;
-    private String message;
     private String equation;
     @JsonIgnore
     private ExpressionTreeNode expressionTree;
+    private String message;
 
     public EquationResponse() {
     }
 
-    public EquationResponse(String message) {
-        this.message = message;
-    }
-
-    public EquationResponse(Long equationId, String message) {
+    public EquationResponse(Long equationId) {
         this.equationId = equationId;
-        this.message = message;
     }
 
     public Long getEquationId() {
@@ -34,13 +29,6 @@ public class EquationResponse {
         this.equationId = equationId;
     }
 
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
 
     public String getEquation() {
         return equation;
@@ -56,6 +44,14 @@ public class EquationResponse {
 
     public void setExpressionTree(ExpressionTreeNode expressionTree) {
         this.expressionTree = expressionTree;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
     }
 }
 

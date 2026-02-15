@@ -4,3 +4,10 @@ spring:
 server:
   servlet:
     context-path: /api
+management:
+  endpoints:
+    web:
+      base-path: /
+  endpoint:
+    health:
+      show-details: never

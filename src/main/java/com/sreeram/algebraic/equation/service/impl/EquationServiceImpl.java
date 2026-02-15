@@ -1,5 +1,9 @@
 package com.sreeram.algebraic.equation.service.impl;
 
+import com.sreeram.algebraic.equation.exception.DivisionByZeroException;
+import com.sreeram.algebraic.equation.exception.EquationNotFoundException;
+import com.sreeram.algebraic.equation.exception.InvalidEquationException;
+import com.sreeram.algebraic.equation.exception.VariableNotFoundException;
 import com.sreeram.algebraic.equation.model.EquationResponse;
 import com.sreeram.algebraic.equation.model.EvaluationRequest;
 import com.sreeram.algebraic.equation.model.EvaluationResponse;
@@ -15,17 +19,25 @@ import java.util.Map;
 @Service
 public class EquationServiceImpl implements EquationService {
     private static final Map<Long, EquationResponse> equationTrees = new HashMap<>();
-    private static Long id = 0L;
+    private static Long id = 1L;
+
+    public void clearAll() {
+        equationTrees.clear();
+        id = 1L;
+    }
 
     @Override
     public EquationResponse storeEquation(String equation) {
+        if (equation == null || equation.trim().isEmpty()) {
+            throw new InvalidEquationException("Equation cannot be null or empty");
+        }
+
         ExpressionTreeNode tree = buildExpressionTree(equation);
 
         EquationResponse response = new EquationResponse();
         response.setEquationId(id);
-        response.setEquation(equation);
+        response.setEquation(convertTreeToInfix(tree));
         response.setExpressionTree(tree);
-        response.setMessage("Equation stored successfully!");
 
         equationTrees.put(id++, response);
 
@@ -34,14 +46,20 @@ public class EquationServiceImpl implements EquationService {
 
     @Override
     public List<EquationResponse> getAllEquations() {
-        return equationTrees.keySet().stream().map(equationTrees::get).toList();
+        return equationTrees.keySet().stream().map(key -> {
+            EquationResponse response = equationTrees.get(key);
+            EquationResponse returnResponse = new EquationResponse();
+            returnResponse.setEquationId(response.getEquationId());
+            returnResponse.setEquation(convertTreeToInfix(response.getExpressionTree()));
+            return returnResponse;
+        }).toList();
     }
 
     @Override
     public EvaluationResponse evaluateEquation(Long equationId, EvaluationRequest request) {
         EquationResponse storedEquation = equationTrees.get(equationId);
         if (storedEquation == null) {
-            return new EvaluationResponse("Equation not found");
+            throw new EquationNotFoundException(equationId);
         }
 
         ExpressionTreeNode tree = storedEquation.getExpressionTree();
@@ -50,7 +68,9 @@ public class EquationServiceImpl implements EquationService {
 
         EvaluationResponse response = new EvaluationResponse();
         response.setResult(result);
-        response.setMessage("Equation evaluated successfully!");
+        response.setEquation(convertTreeToInfix(tree));
+        response.setEquationId(storedEquation.getEquationId());
+        response.setVariable(request.getVariables());
 
         return response;
     }
@@ -201,7 +221,7 @@ public class EquationServiceImpl implements EquationService {
         }
 
         if (stack.isEmpty()) {
-            throw new IllegalArgumentException("Invalid expression");
+            throw new InvalidEquationException("Invalid expression");
         }
 
         return stack.pop();
@@ -229,14 +249,14 @@ public class EquationServiceImpl implements EquationService {
 
     private double evaluateTree(ExpressionTreeNode node) {
         if (node == null) {
-            throw new IllegalArgumentException("Null node in expression tree");
+            throw new InvalidEquationException("Null node in expression tree");
         }
 
         if (node.isLeaf()) {
             try {
                 return Double.parseDouble(node.getValue());
             } catch (NumberFormatException e) {
-                throw new IllegalArgumentException("Invalid operand: " + node.getValue());
+                throw new VariableNotFoundException(node.getValue());
             }
         }
 
@@ -249,7 +269,7 @@ public class EquationServiceImpl implements EquationService {
             case "*" -> leftValue * rightValue;
             case "/" -> {
                 if (rightValue == 0) {
-                    throw new ArithmeticException("Division by zero");
+                    throw new DivisionByZeroException();
                 }
                 yield leftValue / rightValue;
             }
@@ -273,5 +293,105 @@ public class EquationServiceImpl implements EquationService {
 
     private boolean isRightAssociative(char c) {
         return c == '^';
+    }
+
+    private String convertTreeToInfix(ExpressionTreeNode node) {
+        if (node == null) {
+            return "";
+        }
+
+        if (node.isLeaf()) {
+            return node.getValue();
+        }
+
+        String left = convertTreeToInfix(node.getLeft());
+        String right = convertTreeToInfix(node.getRight());
+        String operator = node.getValue();
+
+        boolean needsLeftParens = shouldAddParentheses(node.getLeft(), node, true);
+        boolean needsRightParens = shouldAddParentheses(node.getRight(), node, false);
+
+        if (needsLeftParens) {
+            left = "(" + left + ")";
+        }
+        if (needsRightParens) {
+            right = "(" + right + ")";
+        }
+
+        if (operator.equals("*") && canUseImplicitMultiplication(left, right)) {
+            return left + right;
+        }
+
+        return left + operator + right;
+    }
+
+    private boolean canUseImplicitMultiplication(String left, String right) {
+        if (left.isEmpty() || right.isEmpty()) {
+            return false;
+        }
+
+        char lastCharOfLeft = left.charAt(left.length() - 1);
+        char firstCharOfRight = right.charAt(0);
+
+        boolean leftEndsWithDigit = Character.isDigit(lastCharOfLeft);
+        boolean leftEndsWithLetter = Character.isAlphabetic(lastCharOfLeft);
+        boolean leftEndsWithParen = lastCharOfLeft == ')';
+
+        boolean rightStartsWithLetter = Character.isAlphabetic(firstCharOfRight);
+        boolean rightStartsWithParen = firstCharOfRight == '(';
+
+        if (leftEndsWithDigit && rightStartsWithLetter) {
+            return true;
+        }
+
+        if (leftEndsWithLetter && rightStartsWithLetter) {
+            return true;
+        }
+
+        if (leftEndsWithDigit && rightStartsWithParen) {
+            return true;
+        }
+
+        if (leftEndsWithLetter && rightStartsWithParen) {
+            return true;
+        }
+
+        if (leftEndsWithParen && rightStartsWithLetter) {
+            return true;
+        }
+
+        if (leftEndsWithParen && rightStartsWithParen) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private boolean shouldAddParentheses(ExpressionTreeNode child, ExpressionTreeNode parent, boolean isLeft) {
+        if (child == null || child.isLeaf()) {
+            return false;
+        }
+
+        if (!child.isOperator() || !parent.isOperator()) {
+            return false;
+        }
+
+        int childPrecedence = getPrecedence(child.getValue().charAt(0));
+        int parentPrecedence = getPrecedence(parent.getValue().charAt(0));
+
+        if (childPrecedence < parentPrecedence) {
+            return true;
+        }
+
+        if (childPrecedence == parentPrecedence) {
+            if (!isLeft && (parent.getValue().equals("-") || parent.getValue().equals("/"))) {
+                return true;
+            }
+            if (!isLeft && parent.getValue().equals("^")) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: algebraic-equation
+    runtime: docker
+    region: oregon
+    plan: free
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /api/health
+    envVars:
+      - key: JAVA_TOOL_OPTIONS
+        value: -Xmx512m -Xms256m
+
