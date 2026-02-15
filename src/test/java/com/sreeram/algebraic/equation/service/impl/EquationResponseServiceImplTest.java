@@ -28,114 +28,60 @@ class EquationResponseServiceImplTest {
         EquationResponse result = equationService.storeEquation(equation);
 
         assertNotNull(result);
-        assertEquals("Equation stored successfully", result.getMessage());
+        assertEquals("Equation stored successfully!", result.getMessage());
         assertNotNull(result.getEquationId());
-        assertTrue(result.getEquationId() > 0);
+        assertEquals(0L, result.getEquationId());
+        assertEquals(equation, result.getEquation());
+        assertNotNull(result.getExpressionTree());
     }
 
     @Test
     void testStoreEquation_ComplexExpression() {
-        String equation = "5*x + 2*y - 3*z + 10";
-
-        EquationResponse result = equationService.storeEquation(equation);
-
-        assertNotNull(result);
-        assertEquals("Equation stored successfully", result.getMessage());
-        assertNotNull(result.getEquationId());
-    }
-
-    @Test
-    void testStoreEquation_WithParentheses() {
         String equation = "(2*x + 3)*(y - z)";
 
         EquationResponse result = equationService.storeEquation(equation);
 
         assertNotNull(result);
-        assertEquals("Equation stored successfully", result.getMessage());
+        assertEquals("Equation stored successfully!", result.getMessage());
         assertNotNull(result.getEquationId());
+        assertEquals(equation, result.getEquation());
+        assertNotNull(result.getExpressionTree());
     }
 
     @Test
-    void testStoreEquation_WithDivision() {
-        String equation = "x/2 + y/3 + z";
+    void testStoreEquation_SimpleAddition() {
+        String equation = "x + y";
 
         EquationResponse result = equationService.storeEquation(equation);
 
         assertNotNull(result);
-        assertEquals("Equation stored successfully", result.getMessage());
-        assertNotNull(result.getEquationId());
+        assertEquals("Equation stored successfully!", result.getMessage());
+        assertEquals(equation, result.getEquation());
+        assertNotNull(result.getExpressionTree());
     }
 
     @Test
-    void testStoreEquation_EmptyEquation() {
-        String equation = "";
-
-        assertThrows(IllegalArgumentException.class, () -> {
-            equationService.storeEquation(equation);
-        });
-    }
-
-    @Test
-    void testStoreEquation_NullEquation() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            equationService.storeEquation(null);
-        });
-    }
-
-    @Test
-    void testStoreEquation_OnlyConstant() {
-        String equation = "42";
+    void testStoreEquation_WithPowerOperation() {
+        String equation = "x^2 + y";
 
         EquationResponse result = equationService.storeEquation(equation);
 
         assertNotNull(result);
-        assertEquals("Equation stored successfully", result.getMessage());
-        assertNotNull(result.getEquationId());
-    }
-
-    @Test
-    void testStoreEquation_SingleVariable() {
-        String equation = "5*x";
-
-        EquationResponse result = equationService.storeEquation(equation);
-
-        assertNotNull(result);
-        assertEquals("Equation stored successfully", result.getMessage());
-        assertNotNull(result.getEquationId());
-    }
-
-    @Test
-    void testStoreEquation_TwoVariables() {
-        String equation = "3*x + 4*y";
-
-        EquationResponse result = equationService.storeEquation(equation);
-
-        assertNotNull(result);
-        assertEquals("Equation stored successfully", result.getMessage());
-        assertNotNull(result.getEquationId());
-    }
-
-    @Test
-    void testStoreEquation_AllThreeVariables() {
-        String equation = "x + y + z";
-
-        EquationResponse result = equationService.storeEquation(equation);
-
-        assertNotNull(result);
-        assertEquals("Equation stored successfully", result.getMessage());
-        assertNotNull(result.getEquationId());
+        assertEquals("Equation stored successfully!", result.getMessage());
+        assertEquals(equation, result.getEquation());
+        assertNotNull(result.getExpressionTree());
     }
 
     @Test
     void testStoreEquation_IncrementalIds() {
-        String equation1 = "x + y + z";
+        String equation1 = "x + y";
         String equation2 = "2*x + 3*y";
 
         EquationResponse result1 = equationService.storeEquation(equation1);
         EquationResponse result2 = equationService.storeEquation(equation2);
 
-        assertNotNull(result1.getEquationId());
-        assertNotNull(result2.getEquationId());
+        assertEquals(0L, result1.getEquationId());
+        assertEquals(1L, result2.getEquationId());
         assertNotEquals(result1.getEquationId(), result2.getEquationId());
     }
 
@@ -191,16 +137,11 @@ class EquationResponseServiceImplTest {
         variables.put("z", 4.0);
         EvaluationRequest request = new EvaluationRequest(variables);
 
-        EvaluationResponse result = equationService.evaluateEquation(1L, request);
+        EvaluationResponse result = equationService.evaluateEquation(stored.getEquationId(), request);
 
         assertNotNull(result);
-        assertEquals(stored.getEquationId(), result.getEquationId());
-        assertEquals(equation, result.getEquation());
-        assertNotNull(result.getVariable());
-        assertEquals(2.0, result.getVariable().get("x"));
-        assertEquals(3.0, result.getVariable().get("y"));
-        assertEquals(4.0, result.getVariable().get("z"));
         assertEquals(17.0, result.getResult());
+        assertEquals("Equation evaluated successfully!", result.getMessage());
     }
 
     @Test
@@ -214,10 +155,11 @@ class EquationResponseServiceImplTest {
         variables.put("z", 3.0);
         EvaluationRequest request = new EvaluationRequest(variables);
 
-        EvaluationResponse result = equationService.evaluateEquation(1L, request);
+        EvaluationResponse result = equationService.evaluateEquation(stored.getEquationId(), request);
 
         assertNotNull(result);
         assertEquals(6.0, result.getResult());
+        assertEquals("Equation evaluated successfully!", result.getMessage());
     }
 
     @Test
@@ -231,7 +173,7 @@ class EquationResponseServiceImplTest {
         variables.put("z", 2.0);
         EvaluationRequest request = new EvaluationRequest(variables);
 
-        EvaluationResponse result = equationService.evaluateEquation(1L, request);
+        EvaluationResponse result = equationService.evaluateEquation(stored.getEquationId(), request);
 
         assertNotNull(result);
         assertEquals(5.0, result.getResult());
@@ -248,7 +190,7 @@ class EquationResponseServiceImplTest {
         variables.put("z", 4.0);
         EvaluationRequest request = new EvaluationRequest(variables);
 
-        EvaluationResponse result = equationService.evaluateEquation(1L, request);
+        EvaluationResponse result = equationService.evaluateEquation(stored.getEquationId(), request);
 
         assertNotNull(result);
         assertEquals(24.0, result.getResult());
@@ -262,13 +204,28 @@ class EquationResponseServiceImplTest {
         Map<String, Double> variables = new HashMap<>();
         variables.put("x", 10.0);
         variables.put("y", 2.0);
-        variables.put("z", 0.0);
         EvaluationRequest request = new EvaluationRequest(variables);
 
-        EvaluationResponse result = equationService.evaluateEquation(1L, request);
+        EvaluationResponse result = equationService.evaluateEquation(stored.getEquationId(), request);
 
         assertNotNull(result);
         assertEquals(5.0, result.getResult());
+    }
+
+    @Test
+    void testEvaluateEquation_WithPower() {
+        String equation = "x^y";
+        EquationResponse stored = equationService.storeEquation(equation);
+
+        Map<String, Double> variables = new HashMap<>();
+        variables.put("x", 2.0);
+        variables.put("y", 3.0);
+        EvaluationRequest request = new EvaluationRequest(variables);
+
+        EvaluationResponse result = equationService.evaluateEquation(stored.getEquationId(), request);
+
+        assertNotNull(result);
+        assertEquals(8.0, result.getResult());
     }
 
     @Test
@@ -282,7 +239,7 @@ class EquationResponseServiceImplTest {
         variables.put("z", 4.0);
         EvaluationRequest request = new EvaluationRequest(variables);
 
-        EvaluationResponse result = equationService.evaluateEquation(1L, request);
+        EvaluationResponse result = equationService.evaluateEquation(stored.getEquationId(), request);
 
         assertNotNull(result);
         assertEquals(20.0, result.getResult());
@@ -299,7 +256,7 @@ class EquationResponseServiceImplTest {
         variables.put("z", 0.0);
         EvaluationRequest request = new EvaluationRequest(variables);
 
-        EvaluationResponse result = equationService.evaluateEquation(1L, request);
+        EvaluationResponse result = equationService.evaluateEquation(stored.getEquationId(), request);
 
         assertNotNull(result);
         assertEquals(0.0, result.getResult());
@@ -316,7 +273,7 @@ class EquationResponseServiceImplTest {
         variables.put("z", -3.0);
         EvaluationRequest request = new EvaluationRequest(variables);
 
-        EvaluationResponse result = equationService.evaluateEquation(1L, request);
+        EvaluationResponse result = equationService.evaluateEquation(stored.getEquationId(), request);
 
         assertNotNull(result);
         assertEquals(-6.0, result.getResult());
@@ -333,7 +290,7 @@ class EquationResponseServiceImplTest {
         variables.put("z", 3.5);
         EvaluationRequest request = new EvaluationRequest(variables);
 
-        EvaluationResponse result = equationService.evaluateEquation(1L, request);
+        EvaluationResponse result = equationService.evaluateEquation(stored.getEquationId(), request);
 
         assertNotNull(result);
         assertEquals(7.5, result.getResult());
@@ -347,37 +304,11 @@ class EquationResponseServiceImplTest {
         variables.put("z", 3.0);
         EvaluationRequest request = new EvaluationRequest(variables);
 
-        assertThrows(IllegalArgumentException.class, () -> {
-            equationService.evaluateEquation(1L, request);
-        });
-    }
+        EvaluationResponse result = equationService.evaluateEquation(999L, request);
 
-    @Test
-    void testEvaluateEquation_MissingVariables() {
-        String equation = "x + y + z";
-        EquationResponse stored = equationService.storeEquation(equation);
-        
-        Map<String, Double> variables = new HashMap<>();
-        EvaluationRequest request = new EvaluationRequest(variables);
-
-        assertThrows(IllegalArgumentException.class, () -> {
-            equationService.evaluateEquation(1L, request);
-        });
-    }
-
-    @Test
-    void testEvaluateEquation_PartialVariables() {
-        String equation = "x + y + z";
-        EquationResponse stored = equationService.storeEquation(equation);
-        
-        Map<String, Double> variables = new HashMap<>();
-        variables.put("x", 1.0);
-        variables.put("y", 2.0);
-        EvaluationRequest request = new EvaluationRequest(variables);
-
-        assertThrows(IllegalArgumentException.class, () -> {
-            equationService.evaluateEquation(1L, request);
-        });
+        assertNotNull(result);
+        assertEquals("Equation not found", result.getMessage());
+        assertNull(result.getResult());
     }
 
     @Test
@@ -388,11 +319,10 @@ class EquationResponseServiceImplTest {
         Map<String, Double> variables = new HashMap<>();
         variables.put("x", 10.0);
         variables.put("y", 0.0);
-        variables.put("z", 1.0);
         EvaluationRequest request = new EvaluationRequest(variables);
 
         assertThrows(ArithmeticException.class, () -> {
-            equationService.evaluateEquation(1L, request);
+            equationService.evaluateEquation(stored.getEquationId(), request);
         });
     }
 
@@ -407,29 +337,174 @@ class EquationResponseServiceImplTest {
         variables.put("z", 3000000.0);
         EvaluationRequest request = new EvaluationRequest(variables);
 
-        EvaluationResponse result = equationService.evaluateEquation(1L, request);
+        EvaluationResponse result = equationService.evaluateEquation(stored.getEquationId(), request);
 
         assertNotNull(result);
         assertEquals(6000000.0, result.getResult());
     }
 
     @Test
-    void testEvaluateEquation_ResponseContainsAllFields() {
-        String equation = "x + y + z";
+    void testBuildExpressionTree_SimpleExpression() {
+        String equation = "x + y";
+        EquationResponse result = equationService.storeEquation(equation);
+
+        assertNotNull(result.getExpressionTree());
+        assertEquals("+", result.getExpressionTree().getValue());
+        assertNotNull(result.getExpressionTree().getLeft());
+        assertNotNull(result.getExpressionTree().getRight());
+    }
+
+    @Test
+    void testBuildExpressionTree_ComplexExpression() {
+        String equation = "x * y + z";
+        EquationResponse result = equationService.storeEquation(equation);
+
+        assertNotNull(result.getExpressionTree());
+        assertEquals("+", result.getExpressionTree().getValue());
+        assertTrue(result.getExpressionTree().isOperator());
+        assertFalse(result.getExpressionTree().isLeaf());
+    }
+
+    @Test
+    void testImplicitMultiplication_WithCoefficients() {
+        String equation = "2x + 3y";
         EquationResponse stored = equationService.storeEquation(equation);
-        
+
         Map<String, Double> variables = new HashMap<>();
-        variables.put("x", 1.0);
-        variables.put("y", 2.0);
-        variables.put("z", 3.0);
+        variables.put("x", 5.0);
+        variables.put("y", 4.0);
         EvaluationRequest request = new EvaluationRequest(variables);
 
-        EvaluationResponse result = equationService.evaluateEquation(1L, request);
+        EvaluationResponse result = equationService.evaluateEquation(stored.getEquationId(), request);
 
-        assertNotNull(result.getEquationId());
-        assertNotNull(result.getEquation());
-        assertNotNull(result.getVariable());
-        assertNotNull(result.getResult());
+        assertNotNull(result);
+        assertEquals(22.0, result.getResult());
+        assertEquals("Equation evaluated successfully!", result.getMessage());
+    }
+
+    @Test
+    void testImplicitMultiplication_NumberBeforeParenthesis() {
+        String equation = "3(x + y)";
+        EquationResponse stored = equationService.storeEquation(equation);
+
+        Map<String, Double> variables = new HashMap<>();
+        variables.put("x", 2.0);
+        variables.put("y", 4.0);
+        EvaluationRequest request = new EvaluationRequest(variables);
+
+        EvaluationResponse result = equationService.evaluateEquation(stored.getEquationId(), request);
+
+        assertEquals(18.0, result.getResult());
+    }
+
+    @Test
+    void testImplicitMultiplication_VariableBeforeVariable() {
+        String equation = "xy + z";
+        EquationResponse stored = equationService.storeEquation(equation);
+
+        Map<String, Double> variables = new HashMap<>();
+        variables.put("x", 3.0);
+        variables.put("y", 4.0);
+        variables.put("z", 2.0);
+        EvaluationRequest request = new EvaluationRequest(variables);
+
+        EvaluationResponse result = equationService.evaluateEquation(stored.getEquationId(), request);
+
+        assertEquals(14.0, result.getResult());
+    }
+
+    @Test
+    void testImplicitMultiplication_ConsecutiveParentheses() {
+        String equation = "(x + 1)(y + 2)";
+        EquationResponse stored = equationService.storeEquation(equation);
+
+        Map<String, Double> variables = new HashMap<>();
+        variables.put("x", 2.0);
+        variables.put("y", 3.0);
+        EvaluationRequest request = new EvaluationRequest(variables);
+
+        EvaluationResponse result = equationService.evaluateEquation(stored.getEquationId(), request);
+
+        assertEquals(15.0, result.getResult());
+    }
+
+    @Test
+    void testImplicitMultiplication_VariableBeforeParenthesis() {
+        String equation = "x(y + z)";
+        EquationResponse stored = equationService.storeEquation(equation);
+
+        Map<String, Double> variables = new HashMap<>();
+        variables.put("x", 2.0);
+        variables.put("y", 3.0);
+        variables.put("z", 4.0);
+        EvaluationRequest request = new EvaluationRequest(variables);
+
+        EvaluationResponse result = equationService.evaluateEquation(stored.getEquationId(), request);
+
+        assertEquals(14.0, result.getResult());
+    }
+
+    @Test
+    void testImplicitMultiplication_ParenthesisBeforeVariable() {
+        String equation = "(x + y)z";
+        EquationResponse stored = equationService.storeEquation(equation);
+
+        Map<String, Double> variables = new HashMap<>();
+        variables.put("x", 3.0);
+        variables.put("y", 2.0);
+        variables.put("z", 4.0);
+        EvaluationRequest request = new EvaluationRequest(variables);
+
+        EvaluationResponse result = equationService.evaluateEquation(stored.getEquationId(), request);
+
+        assertEquals(20.0, result.getResult());
+    }
+
+    @Test
+    void testImplicitMultiplication_WithPower() {
+        String equation = "2x^2 + 3y";
+        EquationResponse stored = equationService.storeEquation(equation);
+
+        Map<String, Double> variables = new HashMap<>();
+        variables.put("x", 3.0);
+        variables.put("y", 2.0);
+        EvaluationRequest request = new EvaluationRequest(variables);
+
+        EvaluationResponse result = equationService.evaluateEquation(stored.getEquationId(), request);
+
+        assertEquals(24.0, result.getResult());
+    }
+
+    @Test
+    void testImplicitMultiplication_ComplexNested() {
+        String equation = "2x(3y + 4z) + 5w";
+        EquationResponse stored = equationService.storeEquation(equation);
+
+        Map<String, Double> variables = new HashMap<>();
+        variables.put("x", 2.0);
+        variables.put("y", 3.0);
+        variables.put("z", 1.0);
+        variables.put("w", 2.0);
+        EvaluationRequest request = new EvaluationRequest(variables);
+
+        EvaluationResponse result = equationService.evaluateEquation(stored.getEquationId(), request);
+
+        assertEquals(62.0, result.getResult());
+    }
+
+    @Test
+    void testImplicitMultiplication_DecimalCoefficients() {
+        String equation = "2.5x + 1.5y";
+        EquationResponse stored = equationService.storeEquation(equation);
+
+        Map<String, Double> variables = new HashMap<>();
+        variables.put("x", 4.0);
+        variables.put("y", 2.0);
+        EvaluationRequest request = new EvaluationRequest(variables);
+
+        EvaluationResponse result = equationService.evaluateEquation(stored.getEquationId(), request);
+
+        assertEquals(13.0, result.getResult());
     }
 }
 

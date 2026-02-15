@@ -12,7 +12,7 @@ public class EquationResponse {
     private String message;
     private String equation;
     @JsonIgnore
-    private String postfix;
+    private ExpressionTreeNode expressionTree;
 
     public EquationResponse() {
     }
@@ -50,12 +50,12 @@ public class EquationResponse {
         this.equation = equation;
     }
 
-    public String getPostfix() {
-        return postfix;
+    public ExpressionTreeNode getExpressionTree() {
+        return expressionTree;
     }
 
-    public void setPostfix(String postfix) {
-        this.postfix = postfix;
+    public void setExpressionTree(ExpressionTreeNode expressionTree) {
+        this.expressionTree = expressionTree;
     }
 }
 

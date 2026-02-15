@@ -2,8 +2,10 @@ package com.sreeram.algebraic.equation.controller;
 
 import com.sreeram.algebraic.equation.model.EquationRequest;
 import com.sreeram.algebraic.equation.model.EquationResponse;
+import com.sreeram.algebraic.equation.model.EvaluationRequest;
 import com.sreeram.algebraic.equation.model.EvaluationResponse;
 import com.sreeram.algebraic.equation.service.EquationService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,24 +21,25 @@ public class EquationsController {
     }
 
     @PostMapping("/store")
-    public EquationResponse storeEquation(
+    public ResponseEntity<EquationResponse> storeEquation(
             @RequestBody EquationRequest request
     ) {
         EquationResponse response = equationService.storeEquation(request.getEquation());
-        return new EquationResponse();
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping
-    public List<EquationResponse> getAllEquations(
-    ) {
-        return List.of();
+    public ResponseEntity<List<EquationResponse>> getAllEquations() {
+        List<EquationResponse> equations = equationService.getAllEquations();
+        return ResponseEntity.ok(equations);
     }
 
     @PostMapping("/{equationId}/evaluate")
-    public EvaluationResponse evaluateEquation(
+    public ResponseEntity<EvaluationResponse> evaluateEquation(
             @PathVariable Long equationId,
-            @RequestBody EquationRequest request
+            @RequestBody EvaluationRequest request
     ) {
-        return new EvaluationResponse();
+        EvaluationResponse response = equationService.evaluateEquation(equationId, request);
+        return ResponseEntity.ok(response);
     }
 }
